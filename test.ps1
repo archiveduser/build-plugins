@@ -35,18 +35,17 @@ try {
 
     # 克隆和构建
     Write-Output "Cloning AutoDuty repository"
-    git clone https://github.com/ffxivcode/AutoDuty.git
+    git clone https://github.com/PunishXIV/YesAlready.git
     Write-Output "Changing to AutoDuty directory"
     Set-Location -Path AutoDuty
 
     Write-Output "Checking out commit"
-    git checkout 95c76c609011c1ad25e689554c155926ee0f2f32
+    git checkout v1.9.1
 
     Write-Output "Updating submodules"
     git submodule update --init --recursive
 
     Write-Output "Patching project"
-    (Get-Content ".\AutoDuty\Helpers\QueueHelper.cs" -Raw) -replace 'AgentDawn\.SelectedDawnContentId', 'AgentDawn.SelectedContentId' | Set-Content ".\AutoDuty\Helpers\QueueHelper.cs" -Force
 
     Write-Output "Restoring NuGet packages"
     dotnet restore --no-cache --force
