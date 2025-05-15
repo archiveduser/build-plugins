@@ -26,6 +26,8 @@ try {
     Write-Output "Cleaning up temp file"
     Remove-Item -Path $tempFile -ErrorAction SilentlyContinue
 
+    ls $targetDir
+
     # 克隆和构建
     Write-Output "Cloning AutoDuty repository"
     git clone https://github.com/ffxivcode/AutoDuty.git
