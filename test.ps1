@@ -45,6 +45,9 @@ try {
     Write-Output "Updating submodules"
     git submodule update --init --recursive
 
+    Write-Output "Patching project"
+    (Get-Content ".\AutoDuty\Helpers\QueueHelper.cs" -Raw) -replace 'AgentDawn\.SelectedDawnContentId', 'AgentDawn.SelectedContentId' | Set-Content ".\AutoDuty\Helpers\QueueHelper.cs" -Force
+
     Write-Output "Restoring NuGet packages"
     dotnet restore --no-cache --force
 
