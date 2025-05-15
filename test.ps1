@@ -1,15 +1,51 @@
-$downloadUrl = "https://github.com/AtmoOmen/Dalamud/releases/download/25-05-06-01/latest.7z"
-$targetDir = "$env:APPDATA\XIVLauncher\addon\Hooks\dev"
-$tempFile = "$env:TEMP\latest.7z"
+$ErrorActionPreference = "Stop"
 
-New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
-Invoke-WebRequest -Uri $downloadUrl -OutFile $tempFile
-Expand-Archive -Path $tempFile -DestinationPath $targetDir -Force
-Remove-Item -Path $tempFile
+try {
+    Write-Output "Script started. Current directory: $(Get-Location)"
+    Write-Output "PowerShell version: $($PSVersionTable.PSVersion)"
+    Write-Output "Git version: $(git --version)"
+    Write-Output ".NET version: $(dotnet --version)"
 
+    # 下载和解压
+    $downloadUrl = "https://github.com/AtmoOmen/Dalamud/releases/download/25-05-06-01/latest.7z"
+    $targetDir = "$env:GITHUB_WORKSPACE\XIVLauncher\addon\Hooks\dev"
+    $tempFile = "$env:TEMP\latest.7z"
 
-git clone https://github.com/ffxivcode/AutoDuty.git
-git checkout 95c76c609011c1ad25e689554c155926ee0f2f32
-git submodule update --init --recursive .
-dotnet build --configuration Release
+    Write-Output "Creating directory: $targetDir"
+    New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
 
+    Write-Output "Downloading from: $downloadUrl"
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $tempFile
+
+    Write-Output "Extracting to: $targetDir"
+    if (-not (Get-Command 7z -ErrorAction SilentlyContinue)) {
+        Write-Error "7z is not installed. Cannot extract 7z file."
+    }
+    7z x $tempFile -o"$targetDir" -y
+
+    Write-Output "Cleaning up temp file"
+    Remove-Item -Path $tempFile -ErrorAction SilentlyContinue
+
+    # 克隆和构建
+    Write-Output "Cloning AutoDuty repository"
+    git clone https://github.com/ffxivcode/AutoDuty.git
+    Write-Output "Changing to AutoDuty directory"
+    Set-Location -Path AutoDuty
+
+    Write-Output "Checking out commit"
+    git checkout 95c76c609011c1ad25e689554c155926ee0f2f32
+
+    Write-Output "Updating submodules"
+    git submodule update --init --recursive
+
+    Write-Output "Building project"
+    dotnet build --configuration Release
+}
+catch {
+    Write-Error "Error occurred: $($_.Exception.Message)"
+    Write-Error "Stack trace: $($_.ScriptStackTrace)"
+    exit 1
+}
+finally {
+    Write-Output "Script completed."
+}
