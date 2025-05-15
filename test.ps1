@@ -8,7 +8,7 @@ try {
 
     # 下载和解压
     $downloadUrl = "https://github.com/AtmoOmen/Dalamud/releases/download/25-05-06-01/latest.7z"
-    $targetDir = "$env:GITHUB_WORKSPACE\XIVLauncher\addon\Hooks\dev"
+    $targetDir = "$env:APPDATA\XIVLauncher\addon\Hooks\dev"
     $tempFile = "$env:TEMP\latest.7z"
 
     Write-Output "Creating directory: $targetDir"
@@ -26,7 +26,12 @@ try {
     Write-Output "Cleaning up temp file"
     Remove-Item -Path $tempFile -ErrorAction SilentlyContinue
 
-    ls $targetDir
+    # 验证 Dalamud.dll 存在
+    $dalamudDll = Join-Path $targetDir "Dalamud.dll"
+    if (-not (Test-Path $dalamudDll)) {
+        Write-Error "Dalamud.dll not found in $targetDir"
+    }
+    Write-Output "Dalamud.dll found at: $dalamudDll"
 
     # 克隆和构建
     Write-Output "Cloning AutoDuty repository"
@@ -40,8 +45,11 @@ try {
     Write-Output "Updating submodules"
     git submodule update --init --recursive
 
+    Write-Output "Restoring NuGet packages"
+    dotnet restore --no-cache --force
+
     Write-Output "Building project"
-    dotnet build --configuration Release
+    dotnet build --configuration Release --no-restore
 }
 catch {
     Write-Error "Error occurred: $($_.Exception.Message)"
