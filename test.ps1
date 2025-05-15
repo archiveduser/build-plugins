@@ -34,10 +34,10 @@ try {
     Write-Output "Dalamud.dll found at: $dalamudDll"
 
     # 克隆和构建
-    Write-Output "Cloning AutoDuty repository"
+    Write-Output "Cloning YesAlready repository"
     git clone https://github.com/PunishXIV/YesAlready.git
-    Write-Output "Changing to AutoDuty directory"
-    Set-Location -Path AutoDuty
+    Write-Output "Changing to YesAlready directory"
+    Set-Location -Path YesAlready
 
     Write-Output "Checking out commit"
     git checkout v1.9.1
